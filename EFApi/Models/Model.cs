@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class BloggingContext : DbContext
 {
@@ -35,7 +36,7 @@ public class Blog
     public int BlogId { get; set; }
     public string Url { get; set; }
 
-    public List<Post> Posts { get; } = new();
+    public List<Post> Posts { get; set; }
 }
 
 public class Post
@@ -46,7 +47,6 @@ public class Post
 
     public int BlogId { get; set; }
     public Blog Blog { get; set; }
-    public int AuthorId { get; set; }
     public Author Author { get; set; }
 }
 
@@ -57,4 +57,5 @@ public class Author
     public int Avatar { get; set; }
 
     public int PostId { get; set; }
+    public Post Post { get; set; }
 }
