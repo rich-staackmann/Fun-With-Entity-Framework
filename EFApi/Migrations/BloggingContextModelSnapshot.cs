@@ -15,46 +15,23 @@ namespace EFApi.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.0");
 
-            modelBuilder.Entity("Author", b =>
-                {
-                    b.Property<int>("AuthorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Avatar")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("AuthorId");
-
-                    b.HasIndex("PostId")
-                        .IsUnique();
-
-                    b.ToTable("Author");
-                });
-
             modelBuilder.Entity("Blog", b =>
                 {
-                    b.Property<int>("BlogId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Url")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("BlogId");
+                    b.HasKey("Id");
 
                     b.ToTable("Blog");
                 });
 
             modelBuilder.Entity("Post", b =>
                 {
-                    b.Property<int>("PostId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -67,22 +44,11 @@ namespace EFApi.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("PostId");
+                    b.HasKey("Id");
 
                     b.HasIndex("BlogId");
 
                     b.ToTable("Post");
-                });
-
-            modelBuilder.Entity("Author", b =>
-                {
-                    b.HasOne("Post", "Post")
-                        .WithOne("Author")
-                        .HasForeignKey("Author", "PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("Post", b =>
@@ -99,11 +65,6 @@ namespace EFApi.Migrations
             modelBuilder.Entity("Blog", b =>
                 {
                     b.Navigation("Posts");
-                });
-
-            modelBuilder.Entity("Post", b =>
-                {
-                    b.Navigation("Author");
                 });
 #pragma warning restore 612, 618
         }

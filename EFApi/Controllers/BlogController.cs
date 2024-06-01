@@ -11,44 +11,78 @@ public class BlogController : ControllerBase
     private readonly BloggingContext _context;
     private readonly IMapper _mapper;
 
-    public BlogController(BloggingContext context, IMapper mapper)
+    public BlogController(IMapper mapper)
     {
-        _context = context;
+
+        _context = new BloggingContext();
         _mapper = mapper;
     }
 
     [HttpGet(Name = "GetBlog")]
-    public async Task<IEnumerable<BlogVM>> Get()
+    public async Task<BlogVM> Get(int id)
     {
         var blogs = await _context.Blogs
+            .Where(b => b.Id == id)
             .Include(p => p.Posts)
-            .ThenInclude(a => a.Author)
-            .OrderBy( b=> b.BlogId).ToListAsync();
+            .SingleOrDefaultAsync();
 
-        return _mapper.Map<IEnumerable<BlogVM>>(blogs);
+        return _mapper.Map<BlogVM>(blogs);
     }
 
     [HttpPost(Name = "PostBlog")]
-    public async Task Post(BlogVM blogVM)
+    public async Task<BlogVM> Post(BlogVM blogVM)
     {
         var blog = _mapper.Map<Blog>(blogVM);
         _context.Blogs.Add(blog);
         await _context.SaveChangesAsync();
+        return _mapper.Map<BlogVM>(blog);
     }
 
     [HttpPut(Name = "PutBlog")]
-    public async Task Put(BlogVM blogVM)
+    public async Task<BlogVM> Put(BlogVM blogVM)
     {
         var blog = _mapper.Map<Blog>(blogVM);
-        _context.Blogs.Update(blog);
+        var existingBlog = await _context.Blogs
+            .Include(p => p.Posts)
+            .FirstOrDefaultAsync(b => b.Id == blog.Id);
+
+        if (existingBlog == null)
+        {
+            _context.Add(blog);
+        }
+        else
+        {
+            _context.Entry(existingBlog).CurrentValues.SetValues(blog);
+            foreach (var post in blog.Posts)
+            {
+                var existingPost = existingBlog.Posts
+                    .FirstOrDefault(p => p.Id == post.Id);
+                if (existingPost == null)
+                {
+                    existingBlog.Posts.Add(post);
+                }
+                else
+                {
+                    _context.Entry(existingPost).CurrentValues.SetValues(post);
+                }
+            }
+            foreach (var post in existingBlog.Posts)
+            {
+                if (!blog.Posts.Any(p => p.Id == post.Id))
+                {
+                    _context.Remove(post);
+                }
+            }
+        }
         await _context.SaveChangesAsync();
+        return _mapper.Map<BlogVM>(blog);
     }
 
-    [HttpDelete(Name = "DeleteBlog")]
-    public async Task Delete(BlogVM blogVM)
-    {
-        var blog = _mapper.Map<Blog>(blogVM);
-        _context.Blogs.Remove(blog);
-        await _context.SaveChangesAsync();
-    }
+[HttpDelete(Name = "DeleteBlog")]
+public async Task Delete(BlogVM blogVM)
+{
+    var blog = _mapper.Map<Blog>(blogVM);
+    _context.Blogs.Remove(blog);
+    await _context.SaveChangesAsync();
+}
 }

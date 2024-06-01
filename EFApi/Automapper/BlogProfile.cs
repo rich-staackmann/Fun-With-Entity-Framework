@@ -6,11 +6,8 @@ public class BlogProfile : Profile
 	{
 		CreateMap<Blog, BlogVM>()
 			.ReverseMap()
-			.AfterMap((bvm, b) => b.Posts.ForEach(x => x.BlogId = bvm.BlogId))
-			.AfterMap((bvm, b) => b.Posts.ForEach(x => x.Author.PostId = x.PostId));
+			.AfterMap((bvm, b) => b.Posts.ForEach(x => x.BlogId = bvm.Id));
 		CreateMap<Post, PostVM>()
-			.ReverseMap();
-		CreateMap<Author, AuthorVM>()
 			.ReverseMap();
 	}
 }
